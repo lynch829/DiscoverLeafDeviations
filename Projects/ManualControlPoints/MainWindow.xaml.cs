@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VMS.TPS.Common.Model.API;
 using VMS.TPS.Common.Model.Types;
+using ManualControlPoints.Models;
 
 namespace ManualControlPoints
 {
@@ -26,9 +27,9 @@ namespace ManualControlPoints
         public Course c;
         public ExternalPlanSetup ps;
         //List<Tuple<string,List<cpInfo>>> fields = new List<Tuple<string,List<cpInfo>>>();
-        int fieldnum = 0;
-        int cp_num = 0;
-        List<fieldInfo> fields = new List<fieldInfo>();
+        public int fieldnum = 0;
+        public int cp_num = 0;
+        public List<FieldInfo> fields = new List<FieldInfo>();
         public MainWindow()
         {
             InitializeComponent();
@@ -40,7 +41,7 @@ namespace ManualControlPoints
             foreach (Beam b in ps.Beams)
             {
                 //List<cpInfo> cps = new List<cpInfo>();
-                fields.Add(new fieldInfo
+                fields.Add(new FieldInfo
                 {
                     FieldId = b.Id,
                     cpInfos = new List<cpInfo>(),
@@ -88,31 +89,7 @@ namespace ManualControlPoints
                     fields.First().cpInfos.First().cpId, fields.First().cpInfos.First().meterSet);
             }
         }
-        public class fieldInfo
-        {
-            public string FieldId { get; set; }
-            public List<cpInfo> cpInfos { get; set; }
-            //these parameters are just to be copied to the new fields
-            public ExternalBeamMachineParameters ebmp { get; set; }
-            public double collAngle { get; set; }
-            public double gantry { get; set; }
-            public double couch { get; set; }
-            public VVector isocenter { get; set; }
-            public BeamParameters bp { get; set; }
-            public MetersetValue MU { get; set; }
-        }
-        public class cpInfo
-        {
-            public int cpId { get; set; }
-            public double meterSet { get; set; }
-            public List<cpDetail> cpDetails { get; set; }
-        }
-        public class cpDetail
-        {
-            public int leaffNum { get; set; }
-            public float leafA { get; set; }
-            public float leafB { get; set; }
-        }
+
         private void prev_btn_Click(object sender, RoutedEventArgs e)
         {
             if (fields.Count() != 0)
@@ -200,11 +177,11 @@ namespace ManualControlPoints
                 ps.TreatmentPercentage);
             ps2.PlanNormalizationValue = ps.PlanNormalizationValue;
             //ps2.TreatmentPercentage = ps.TreatmentPercentage;//read only
-            
+
             //ps2.AddMLCBeam()
             ps2.Id = plan_txt.Text;
             List<KeyValuePair<string, MetersetValue>> mu_list = new List<KeyValuePair<string, MetersetValue>>();
-            foreach (fieldInfo fi in fields)
+            foreach (FieldInfo fi in fields)
             {
                 Beam b2 = ps2.AddSlidingWindowBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet),
                     fi.collAngle, fi.gantry, fi.couch, fi.isocenter);
@@ -214,13 +191,13 @@ namespace ManualControlPoints
                 //int cploc = 0;
                 //foreach (cpInfo cpi in fi.cpInfos)
                 double MU_old = 0;
-                foreach(ControlPointParameters cpp in beamp.ControlPoints)
+                foreach (ControlPointParameters cpp in beamp.ControlPoints)
                 {
                     float[,] leafPos = new float[2, 60];
                     int leafloc = 0;
                     cpInfo cpi = fi.cpInfos[cploc];
                     //get first MU point
-                    if(cploc == 0) { MU_old = cpp.MetersetWeight; }
+                    if (cploc == 0) { MU_old = cpp.MetersetWeight; }
                     else
                     {
                         //interpolate halfway (just take an average for now.
@@ -236,10 +213,10 @@ namespace ManualControlPoints
                     //start with the first leaf position, and then interoplate all the rest.
                     float leaf_oldA = 0;
                     float leaf_oldB = 0;
-                    for (int i = 0; i<cpi.cpDetails.Count(); i++)
+                    for (int i = 0; i < cpi.cpDetails.Count(); i++)
                     {
-                        
-                        if(i == 0)
+
+                        if (i == 0)
                         {
                             leafPos[0, i] = cpi.cpDetails[i].leafA;
                             leafPos[1, i] = cpi.cpDetails[i + 1].leafB;
@@ -264,6 +241,25 @@ namespace ManualControlPoints
             }
             ps2.CalculateDoseWithPresetValues(mu_list);
             MessageBox.Show("plan_txt created successfully.");
+        }
+
+        private void getDev_btn_Click(object sender, RoutedEventArgs e)
+        {
+            //first alert the user to the number of fields that have been detecteed. 
+            //two messages can be displayed.
+            int field_count = fields.Count();
+            if (field_count == 0)
+            {
+                MessageBox.Show("No fields currently found, Pleasee grab the plan before searching for the deviations");
+            }
+            else
+            {
+                //MessageBox.Show($"Detected {field_count} fields. Grab all the deviations associated with these fields.");
+                var devWindow = new DeviationFind();
+                devWindow.field_list = fields;
+                devWindow.Show();
+
+            }
         }
     }
 }

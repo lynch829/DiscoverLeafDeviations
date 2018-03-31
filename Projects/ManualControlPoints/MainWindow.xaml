@@ -13,6 +13,8 @@
         <Button Name="getCP_btn" Width="150" Height="30" Margin="150,10,0,0" HorizontalAlignment="Left"
                 VerticalAlignment="Top" Content="Load Control Points" Click="getCP_btn_Click"></Button> 
         <!-- Allow for the conversion around different ffields-->
+        <Button Name="getDev_btn" Width="150" Height="30" Margin="325,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                Content="Load Deviations" Click="getDev_btn_Click"></Button>
         <Button Name="prev_btn" Content="&lt;" Width="50" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="50,350,0,0" Click="prev_btn_Click"></Button>
         <Label Name="fieldId" Width="150" Margin="150,350,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></Label>
@@ -23,7 +25,7 @@
         <Label Name="cpId" Width="150" Margin="150,400,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></Label>
         <Button Name="nextCP_btn" Content="&gt;" Width="50" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="350,400,0,0" Click="nextCP_btn_Click"></Button>
-        <TextBlock Margin="450,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">New Plan Creation</TextBlock>
+        <TextBlock Margin="550,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">New Plan Creation</TextBlock>
         <TextBlock Margin="450,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">Course Id:</TextBlock>
         <TextBox Name="course_txt" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Height="20"
                    Margin="520,50,0,0">Test Course</TextBox>

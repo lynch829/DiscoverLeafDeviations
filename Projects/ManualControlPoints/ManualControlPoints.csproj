@@ -55,12 +55,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeviationFind.xaml.cs">
+      <DependentUpon>DeviationFind.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ManualControlPoints.cs" />
+    <Compile Include="Models\FieldInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="DeviationFind.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
