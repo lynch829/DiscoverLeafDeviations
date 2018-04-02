@@ -85,6 +85,7 @@ namespace ManualControlPoints
             //cp_dg.ItemsSource = fields.ElementAt(fieldnum).cpInfos.ElementAt(cp_num).cpDetails;
             //cp_dg.Items.Refresh();
             mwindow.cp_dg.ItemsSource = field_list.ElementAt(mwindow.fieldnum).cpInfos.ElementAt(mwindow.cp_num).cpDetails;
+            
             mwindow.cp_dg.Items.Refresh();
             this.Close();
         }

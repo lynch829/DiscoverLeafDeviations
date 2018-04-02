@@ -34,5 +34,13 @@
                  Margin="520,80,0,0">TestPlan</TextBox>
         <Button Name="newPlan_btn" Content="Generate New Plan" Width="150" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"
             Margin="450,140,0,0" Click="newPlan_btn_Click"></Button>
+        <TextBlock FontSize="18" Margin="450,180,0,0">Info</TextBlock>
+        <!--<TextBlock FontSize="16" Margin="420,200,0,0">Jaw positions:</TextBlock>
+        <TextBox Name="jaws_txt" Width="150" Height="30" Margin="520,200,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></TextBox>
+        <TextBlock FontSize="16" Margin="420,230,0,0">Min/Max B:</TextBlock>
+        <TextBlock FontSize="16" Margin="420,260,0,0">Min/Max A:</TextBlock>
+        <TextBox Name="b_txt" Width="150" Height="30" Margin="520,230,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></TextBox>
+        <TextBox Name="a_txt" Width="150" Height="30" Margin="520,260,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></TextBox>-->
     </Grid>
 </UserControl>
+ 

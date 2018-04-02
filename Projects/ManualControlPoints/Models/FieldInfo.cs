@@ -14,12 +14,16 @@ namespace ManualControlPoints.Models
         //public List<devInfo> devInfos { get; set; }
         //these parameters are just to be copied to the new fields
         public ExternalBeamMachineParameters ebmp { get; set; }
+        //need to know if it is a VMAT field.
+        public GantryDirection gantry_direction {get;set;}
         public double collAngle { get; set; }
         public double gantry { get; set; }
         public double couch { get; set; }
         public VVector isocenter { get; set; }
         public BeamParameters bp { get; set; }
         public MetersetValue MU { get; set; }
+        public Applicator applicator { get; set; }
+        public double gantry_stop { get; internal set; }
     }
     
     public class cpInfo

@@ -53,7 +53,12 @@ namespace ManualControlPoints
                     isocenter = b.IsocenterPosition,
                     bp = b.GetEditableParameters(),
                     MU = b.Meterset,
+                    gantry_direction = b.GantryDirection,
+                    gantry_stop = b.GantryDirection == 0 ? b.ControlPoints.First().GantryAngle :
+                    b.ControlPoints.Last().GantryAngle,
+
                 });
+                if (b.Applicator != null) { fields.Last().applicator = b.Applicator; }
                 ControlPointCollection cpc = b.ControlPoints;
                 //loop through control pointss and add to cps
                 for (int cp = 0; cp < cpc.Count(); cp++)
@@ -71,8 +76,9 @@ namespace ManualControlPoints
                         fields.Last().cpInfos.Last().cpDetails.Add(new cpDetail
                         {
                             leaffNum = i,
-                            leafA = leaf_positions[0, i],//+10, //replace 10mm with leaf shifts
-                            leafB = leaf_positions[1, i]// +10 //replace 10mm with leaf shifts.
+                            //1 is a and 0 is b.
+                            leafA = leaf_positions[1, i],//+10, //replace 10mm with leaf shifts
+                            leafB = leaf_positions[0, i]// +10 //replace 10mm with leaf shifts.
                         });
                     }
                 }
@@ -165,16 +171,24 @@ namespace ManualControlPoints
 
         private void newPlan_btn_Click(object sender, RoutedEventArgs e)
         {
-            Course c2 = p.AddCourse();
-            c2.Id = course_txt.Text;
+            Course c2 = null;
+            if (p.Courses.Where(x => x.Id == course_txt.Text).Count() == 0)
+            {
+                c2 = p.AddCourse();
+                c2.Id = course_txt.Text;
+
+            }
+            else { c2 = p.Courses.First(x => x.Id == course_txt.Text); }
             ExternalPlanSetup ps2 = c2.AddExternalPlanSetup(ps.StructureSet);
-            //doses should all be the same.
+            //doses should all be the same.t 
             //ps2.DosePerFraction = ps.DosePerFraction; //read only
             //ps2.TotalDose = ps.TotalDose;//read only
             ps2.SetPrescription(
                 (int)ps.NumberOfFractions,
                 ps.DosePerFraction,
                 ps.TreatmentPercentage);
+            //I've chnaged this down below. Currently, the calculation will take place with preset monitor units
+            //making it the same as the plan its copied from but then I scale the normaliztation factor by 1.3% because the discover is not in the beam.
             ps2.PlanNormalizationValue = ps.PlanNormalizationValue;
             //ps2.TreatmentPercentage = ps.TreatmentPercentage;//read only
 
@@ -183,9 +197,19 @@ namespace ManualControlPoints
             List<KeyValuePair<string, MetersetValue>> mu_list = new List<KeyValuePair<string, MetersetValue>>();
             foreach (FieldInfo fi in fields)
             {
-                Beam b2 = ps2.AddSlidingWindowBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet),
-                    fi.collAngle, fi.gantry, fi.couch, fi.isocenter);
+                Beam b2;
+                if (fi.gantry == 0)
+                {
+                    b2 = ps2.AddSlidingWindowBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet),
+                        fi.collAngle, fi.gantry, fi.couch, fi.isocenter);
+                }
+                else
+                {
+                    b2 = ps2.AddVMATBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet), fi.collAngle,
+                        fi.gantry, fi.gantry_stop, fi.gantry_direction, fi.couch, fi.isocenter);
+                }
                 int cploc = 0;
+                //if (fi.applicator != null) { b2.Applicator = fi.applicator; }
                 BeamParameters beamp = fi.bp;
                 //b2.ApplyParameters(new BeamParameters(ControlPoint cp))
                 //int cploc = 0;
@@ -195,71 +219,130 @@ namespace ManualControlPoints
                 {
                     float[,] leafPos = new float[2, 60];
                     int leafloc = 0;
+                    double x1 = cpp.JawPositions.X1;
+                    double x2 = cpp.JawPositions.X2;
                     cpInfo cpi = fi.cpInfos[cploc];
                     //get first MU point
-                    if (cploc == 0) { MU_old = cpp.MetersetWeight; }
+                    /*if (cploc == 0) { MU_old = cpp.MetersetWeight; }
                     else
                     {
                         //interpolate halfway (just take an average for now.
                         //cpp.MetersetWeight = (mu_old + 
                         //meterset weight is read only. I must find the leaf position at the calculated meterset location.
-                    }
-                    /*foreach (cpDetail cpd in cpi.cpDetails)
-                    {
-                        leafPos[0, leafloc] = cpd.leafA;
-                        leafPos[1, leafloc] = cpd.leafB;
-                        leafloc++;
                     }*/
-                    //start with the first leaf position, and then interoplate all the rest.
-                    float leaf_oldA = 0;
-                    float leaf_oldB = 0;
-                    for (int i = 0; i < cpi.cpDetails.Count(); i++)
+                    foreach (cpDetail cpd in cpi.cpDetails)
                     {
-
-                        if (i == 0)
+                        //this part is a little shady...
+                        //sometimes the errors show that the difference will overlap the leaves.
+                        //here we check for the overla[p and if there is n overlap, leaf B just gets set to 0.5 less than the leaf A position.
+                        //thus ignoring the deviation fort that leaf pair.
+                        if (cpd.leafB + Convert.ToSingle(cpd.deviationB) > cpd.leafA + Convert.ToSingle(cpd.deviationA))
                         {
-                            leafPos[0, i] = cpi.cpDetails[i].leafA;
-                            leafPos[1, i] = cpi.cpDetails[i + 1].leafB;
-                            leaf_oldA = leafPos[0, i];
-                            leaf_oldB = leafPos[1, i];
-                            //mU_old = cpi.meterSet[i];
+                            //    /*if (cpd.leafA + (float)cpd.deviationA< x1)
+                            //    {
+                            //        leafPos[1, leafloc] = (float)x1 + (float)0.5;
+                            //        leafPos[0, leafloc] = (float)x1;
+                            //    }
+                            //    else if(cpd.leafA + (float)cpd.deviationA > x2)
+                            //    {
+                            //        leafPos[1, leafloc] = (float)x2;
+                            //        leafPos[0, leafloc] = (float)x2 - (float)0.5;
+                            //    }
+                            //    else
+                            //    {
+                            //        leafPos[1, leafloc] = cpd.leafA + Convert.ToSingle(cpd.deviationA);
+                            //        leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.5;
+                            //    } */
+                            leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
+                            leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.1;
                         }
                         else
                         {
-                            //let the interpolation begin.
-                            //first the MU
+                            /*if (cpd.leafA + (float)cpd.deviationA < x1)
+                            {
+
+                                leafPos[1, leafloc] = (float)x1 + (float)0.5;
+                                leafPos[0, leafloc] = (float)x1;
+                            }
+                            else if (cpd.leafA + (float)cpd.deviationA > x2)
+                            {
+                                leafPos[1, leafloc] = (float)x2;
+                                if(cpd.leafB + (float)cpd.deviationB > x2)
+                                {
+                                    leafPos[0, leafloc] = (float)x2 - (float)0.5;
+                                }
+                                else
+                                {
+                                    leafPos[0, leafloc] = cpd.leafB + (float)cpd.deviationB;
+                                }
+                            }
+                            else
+                            {
+                                leafPos[1, leafloc] = cpd.leafA + Convert.ToSingle(cpd.deviationA);
+                                leafPos[0, leafloc] = cpd.leafB + (float)cpd.deviationB;
+                            }*/
+                            leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
+                            leafPos[0, leafloc] = cpd.leafB + (float)cpd.deviationB;
+
+                            //leafPos[0, leafloc] = cpd.leafA + Convert.ToSingle(cpd.deviationA);
+                            //leafPos[1, leafloc] = cpd.leafB + Convert.ToSingle(cpd.deviationB);
+                            }
+
+                            leafloc++;
                         }
+                        ////start with the first leaf position, and then interoplate all the rest.
+                        //float leaf_oldA = 0;
+                        //float leaf_oldB = 0;
+                        //for (int i = 0; i < cpi.cpDetails.Count(); i++)
+                        //{
+
+                        //    if (i == 0)
+                        //    {
+                        //        leafPos[0, i] = cpi.cpDetails[i].leafA;
+                        //        leafPos[1, i] = cpi.cpDetails[i + 1].leafB;
+                        //        leaf_oldA = leafPos[0, i];
+                        //        leaf_oldB = leafPos[1, i];
+                        //        //mU_old = cpi.meterSet[i];
+                        //    }
+                        //    else
+                        //    {
+                        //        //let the interpolation begin.
+                        //        //first the MU
+                        //    }
+                        //}
+                        //beamp.SetAllLeafPositions(leafPos);
+                        //ControlPointParameters cpp =  beamp.ControlPoints[cploc]
+                        cpp.LeafPositions = leafPos;
+                        b2.ApplyParameters(beamp);
+                        cploc++;
                     }
-                    //beamp.SetAllLeafPositions(leafPos);
-                    //ControlPointParameters cpp =  beamp.ControlPoints[cploc]
-                    cpp.LeafPositions = leafPos;
-                    b2.ApplyParameters(beamp);
-                    cploc++;
+                    //calculate the dose for each of the fields.
+                    mu_list.Add(new KeyValuePair<string, MetersetValue>(b2.Id, fi.MU));
                 }
-                //calculate the dose for each of the fields.
-                mu_list.Add(new KeyValuePair<string, MetersetValue>(b2.Id, fi.MU));
+                ps2.CalculateDoseWithPresetValues(mu_list);
+            //ps2.PlanNormalizationMethod = ps.PlanNormalizationMethod;\
+            //need to renormalize by 1.3% in order to take into account the Discover that we cannot add to the newly calculated plan.
+            ps2.PlanNormalizationValue = 1.013 * ps2.PlanNormalizationValue;
+                MessageBox.Show($"{plan_txt.Text} created successfully.");
             }
-            ps2.CalculateDoseWithPresetValues(mu_list);
-            MessageBox.Show("plan_txt created successfully.");
-        }
 
-        private void getDev_btn_Click(object sender, RoutedEventArgs e)
-        {
-            //first alert the user to the number of fields that have been detecteed. 
-            //two messages can be displayed.
-            int field_count = fields.Count();
-            if (field_count == 0)
+            private void getDev_btn_Click(object sender, RoutedEventArgs e)
             {
-                MessageBox.Show("No fields currently found, Pleasee grab the plan before searching for the deviations");
-            }
-            else
-            {
-                //MessageBox.Show($"Detected {field_count} fields. Grab all the deviations associated with these fields.");
-                var devWindow = new DeviationFind();
-                devWindow.field_list = fields;
-                devWindow.Show();
+                //first alert the user to the number of fields that have been detecteed. 
+                //two messages can be displayed.
+                int field_count = fields.Count();
+                if (field_count == 0)
+                {
+                    MessageBox.Show("No fields currently found, Pleasee grab the plan before searching for the deviations");
+                }
+                else
+                {
+                    //MessageBox.Show($"Detected {field_count} fields. Grab all the deviations associated with these fields.");
+                    var devWindow = new DeviationFind();
+                    devWindow.field_list = fields;
+                    devWindow.Show();
 
+                }
             }
         }
     }
-}
