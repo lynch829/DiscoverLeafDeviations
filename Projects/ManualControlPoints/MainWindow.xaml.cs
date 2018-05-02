@@ -198,7 +198,7 @@ namespace ManualControlPoints
             foreach (FieldInfo fi in fields)
             {
                 Beam b2;
-                if (fi.gantry == 0)
+                if (fi.gantry_direction == 0)
                 {
                     b2 = ps2.AddSlidingWindowBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet),
                         fi.collAngle, fi.gantry, fi.couch, fi.isocenter);
@@ -222,37 +222,14 @@ namespace ManualControlPoints
                     double x1 = cpp.JawPositions.X1;
                     double x2 = cpp.JawPositions.X2;
                     cpInfo cpi = fi.cpInfos[cploc];
-                    //get first MU point
-                    /*if (cploc == 0) { MU_old = cpp.MetersetWeight; }
-                    else
-                    {
-                        //interpolate halfway (just take an average for now.
-                        //cpp.MetersetWeight = (mu_old + 
-                        //meterset weight is read only. I must find the leaf position at the calculated meterset location.
-                    }*/
+                    
                     foreach (cpDetail cpd in cpi.cpDetails)
                     {
-                        //this part is a little shady...
                         //sometimes the errors show that the difference will overlap the leaves.
-                        //here we check for the overla[p and if there is n overlap, leaf B just gets set to 0.5 less than the leaf A position.
+                        //here we check for the overla[p and if there is n overlap, leaf B just gets set to 0.1 less than the leaf A position.
                         //thus ignoring the deviation fort that leaf pair.
                         if (cpd.leafB + Convert.ToSingle(cpd.deviationB) > cpd.leafA + Convert.ToSingle(cpd.deviationA))
                         {
-                            //    /*if (cpd.leafA + (float)cpd.deviationA< x1)
-                            //    {
-                            //        leafPos[1, leafloc] = (float)x1 + (float)0.5;
-                            //        leafPos[0, leafloc] = (float)x1;
-                            //    }
-                            //    else if(cpd.leafA + (float)cpd.deviationA > x2)
-                            //    {
-                            //        leafPos[1, leafloc] = (float)x2;
-                            //        leafPos[0, leafloc] = (float)x2 - (float)0.5;
-                            //    }
-                            //    else
-                            //    {
-                            //        leafPos[1, leafloc] = cpd.leafA + Convert.ToSingle(cpd.deviationA);
-                            //        leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.5;
-                            //    } */
                             leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
                             leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.1;
                         }
@@ -313,6 +290,7 @@ namespace ManualControlPoints
                         //beamp.SetAllLeafPositions(leafPos);
                         //ControlPointParameters cpp =  beamp.ControlPoints[cploc]
                         cpp.LeafPositions = leafPos;
+                    //double check to see if this has to be applied every time. VMAT code is taking a long time.
                         b2.ApplyParameters(beamp);
                         cploc++;
                     }
