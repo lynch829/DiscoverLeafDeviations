@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using VMS.TPS.Common.Model.API;
 using VMS.TPS.Common.Model.Types;
+
 namespace ManualControlPoints.Models
 {
     public class FieldInfo
@@ -13,7 +10,8 @@ namespace ManualControlPoints.Models
         public List<cpInfo> cpInfos { get; set; }
         //public List<devInfo> devInfos { get; set; }
         //these parameters are just to be copied to the new fields
-        public ExternalBeamMachineParameters ebmp { get; set; }
+        public ExternalBeamMachineParameters Ebmp { get; set; }
+        
         //need to know if it is a VMAT field.
         public GantryDirection gantry_direction {get;set;}
         public double collAngle { get; set; }

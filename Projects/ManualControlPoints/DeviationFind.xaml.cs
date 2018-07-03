@@ -34,7 +34,8 @@ namespace ManualControlPoints
         {
             //check that all the textboxes are not null or empty
             foreach (StackPanel sp in field_files.Children)
-            {
+            //for(kk=0; kk<fields_files.Children; kk++)
+            {      /* Stackpanel sp= fields_files.Children[kk];*/
                 if (sp.Children.OfType<Button>().Count() != 0)
                 {
                     if (String.IsNullOrEmpty(sp.Children.OfType<TextBox>().First().Text))
@@ -49,12 +50,15 @@ namespace ManualControlPoints
                         //each row of the file is a control point. 
                         int cpnum = 0;
                         foreach (string line in File.ReadAllLines(filename))
-                        {
+                            //for (int ss=0; ss< File.ReadAllLines(filename).Count(); ss++)############
+                        {  /*string line= File.ReadAllLines(filename)[ss];#############*/
                             //each column is a leaf pair. delimited by tabs.
                             //the file reads b first (x1) and then a next (x2).
                             int colCount = 0;
                             foreach (string leafDev in line.Split('\t'))
+                                //for (int ff=0; ff<line.Split('\t').Count(); ff++)#################
                             {
+                                 //string leafDev= line.Split('\t')[ff];#################
                                 //now find that control point associated with that number
                                 if (colCount < 60)
                                 {
@@ -106,7 +110,10 @@ namespace ManualControlPoints
             sp1.Children.Add(tb); sp1.Children.Add(tb2);
             field_files.Children.Add(sp1);
             foreach (FieldInfo field in field_list)
+
+            //for (int hh = 0; hh < field_list.Count(); hh++)######################
             {
+                //FieldInfo field = field_list[hh];#####################
                 //create a textblock and a box to find the file and another textbox to put the file name.
                 StackPanel sp2 = new StackPanel();
                 sp2.Orientation = Orientation.Horizontal;

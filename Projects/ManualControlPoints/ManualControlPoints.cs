@@ -1,12 +1,6 @@
-using System;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using VMS.TPS.Common.Model.API;
-using VMS.TPS.Common.Model.Types;
 
 // TODO: Replace the following version attributes by creating AssemblyInfo.cs. You can do this in the properties of the Visual Studio project.
 [assembly: AssemblyVersion("1.8.4.3")]
@@ -35,6 +29,9 @@ namespace VMS.TPS
             Course c = context.Course;
             ExternalPlanSetup ps = context.ExternalPlanSetup;
             var mainWindow = new ManualControlPoints.MainWindow();
+
+           
+           
             //set window properties.
             window.Width = mainWindow.Width + 10;
             window.Height = mainWindow.Height + 5;

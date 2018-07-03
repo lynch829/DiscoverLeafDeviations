@@ -23,6 +23,8 @@ namespace ManualControlPoints
     /// </summary>
     public partial class MainWindow : UserControl
     {
+        public double no_norm = 100;
+        public double val=0;
         public Patient p;
         public Course c;
         public ExternalPlanSetup ps;
@@ -39,13 +41,15 @@ namespace ManualControlPoints
         {
             //loop through the ffields
             foreach (Beam b in ps.Beams)
+                //for (int ll = 0; ll < ps.Beams.Count(); ll++)
             {
+                //Beam b = ps.Beams[ll];
                 //List<cpInfo> cps = new List<cpInfo>();
                 fields.Add(new FieldInfo
                 {
                     FieldId = b.Id,
                     cpInfos = new List<cpInfo>(),
-                    ebmp = new ExternalBeamMachineParameters(b.TreatmentUnit.Id, b.EnergyModeDisplayName,
+                    Ebmp = new ExternalBeamMachineParameters(b.TreatmentUnit.Id, b.EnergyModeDisplayName,
                     b.DoseRate, b.Technique.Id, null),
                     collAngle = b.ControlPoints.First().CollimatorAngle,
                     gantry = b.ControlPoints.First().GantryAngle,
@@ -176,6 +180,7 @@ namespace ManualControlPoints
             {
                 c2 = p.AddCourse();
                 c2.Id = course_txt.Text;
+                
 
             }
             else { c2 = p.Courses.First(x => x.Id == course_txt.Text); }
@@ -189,23 +194,29 @@ namespace ManualControlPoints
                 ps.TreatmentPercentage);
             //I've chnaged this down below. Currently, the calculation will take place with preset monitor units
             //making it the same as the plan its copied from but then I scale the normaliztation factor by 1.3% because the discover is not in the beam.
-            ps2.PlanNormalizationValue = ps.PlanNormalizationValue;
+            ps2.PlanNormalizationValue = val*ps.PlanNormalizationValue;
+
+            //val = (double)Convert.ToDouble(Input.Text);
+            bool valid = double.TryParse(Input.Text.ToString(), out val);
+            ps2.PlanNormalizationValue = val + no_norm;
             //ps2.TreatmentPercentage = ps.TreatmentPercentage;//read only
 
             //ps2.AddMLCBeam()
             ps2.Id = plan_txt.Text;
             List<KeyValuePair<string, MetersetValue>> mu_list = new List<KeyValuePair<string, MetersetValue>>();
-            foreach (FieldInfo fi in fields)
+            /*foreach (FieldInfo fi in fields)########################*/
+            for (int t = 0; t < fields.Count(); t++)
             {
+                FieldInfo fi = fields[t];
                 Beam b2;
                 if (fi.gantry_direction == 0)
                 {
-                    b2 = ps2.AddSlidingWindowBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet),
+                    b2 = ps2.AddSlidingWindowBeam(fi.Ebmp, fi.cpInfos.Select(x => x.meterSet),
                         fi.collAngle, fi.gantry, fi.couch, fi.isocenter);
                 }
                 else
                 {
-                    b2 = ps2.AddVMATBeam(fi.ebmp, fi.cpInfos.Select(x => x.meterSet), fi.collAngle,
+                    b2 = ps2.AddVMATBeam(fi.Ebmp, fi.cpInfos.Select(x => x.meterSet), fi.collAngle,
                         fi.gantry, fi.gantry_stop, fi.gantry_direction, fi.couch, fi.isocenter);
                 }
                 int cploc = 0;
@@ -214,17 +225,19 @@ namespace ManualControlPoints
                 //b2.ApplyParameters(new BeamParameters(ControlPoint cp))
                 //int cploc = 0;
                 //foreach (cpInfo cpi in fi.cpInfos)
-                double MU_old = 0;
+                //double MU_old = 0;
                 foreach (ControlPointParameters cpp in beamp.ControlPoints)
-                {
+                    //for(int xx=0; xx< beamp.ControlPoints.Count(); xx++)
+                {  /* ControlPointParameters cpp= beamp.ControlPoints[xx];*/
                     float[,] leafPos = new float[2, 60];
                     int leafloc = 0;
                     double x1 = cpp.JawPositions.X1;
                     double x2 = cpp.JawPositions.X2;
                     cpInfo cpi = fi.cpInfos[cploc];
                     
-                    foreach (cpDetail cpd in cpi.cpDetails)
-                    {
+                    //foreach (cpDetail cpd in cpi.cpDetails)#####################
+                         for(int dd=0; dd< cpi.cpDetails.Count(); dd++) 
+                    {     cpDetail cpd= cpi.cpDetails[dd]; 
                         //sometimes the errors show that the difference will overlap the leaves.
                         //here we check for the overla[p and if there is n overlap, leaf B just gets set to 0.1 less than the leaf A position.
                         //thus ignoring the deviation fort that leaf pair.
@@ -291,8 +304,15 @@ namespace ManualControlPoints
                         //ControlPointParameters cpp =  beamp.ControlPoints[cploc]
                         cpp.LeafPositions = leafPos;
                     //double check to see if this has to be applied every time. VMAT code is taking a long time.
-                        b2.ApplyParameters(beamp);
-                        cploc++;
+
+
+                    //********************************** 
+                     b2.ApplyParameters(beamp);
+                    //**********************************
+
+
+
+                    cploc++;
                     }
                     //calculate the dose for each of the fields.
                     mu_list.Add(new KeyValuePair<string, MetersetValue>(b2.Id, fi.MU));
@@ -300,8 +320,11 @@ namespace ManualControlPoints
                 ps2.CalculateDoseWithPresetValues(mu_list);
             //ps2.PlanNormalizationMethod = ps.PlanNormalizationMethod;\
             //need to renormalize by 1.3% in order to take into account the Discover that we cannot add to the newly calculated plan.
-            ps2.PlanNormalizationValue = 1.013 * ps2.PlanNormalizationValue;
-                MessageBox.Show($"{plan_txt.Text} created successfully.");
+            //ps2.PlanNormalizationValue = val * ps2.PlanNormalizationValue;
+            //val = (double)Convert.ToDouble(Input.Text);
+            if (double.TryParse(Input.Text.ToString(), out val))
+            { ps2.PlanNormalizationValue = val + no_norm; }
+            MessageBox.Show($"{plan_txt.Text} created successfully.");
             }
 
             private void getDev_btn_Click(object sender, RoutedEventArgs e)

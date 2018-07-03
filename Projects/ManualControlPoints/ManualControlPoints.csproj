@@ -55,6 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Apply.cs" />
     <Compile Include="DeviationFind.xaml.cs">
       <DependentUpon>DeviationFind.xaml</DependentUpon>
     </Compile>
