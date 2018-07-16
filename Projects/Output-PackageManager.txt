@@ -1,0 +1,28 @@
+﻿
+
+Attempting to gather dependency information for package 'EvilDICOM.2.0.2.9' with respect to project 'DicomPlanCreation', targeting '.NETFramework,Version=v4.6.1'
+Gathering dependency information took 589.36 ms
+Attempting to resolve dependencies for package 'EvilDICOM.2.0.2.9' with DependencyBehavior 'Lowest'
+Resolving dependency information took 0 ms
+Resolving actions to install package 'EvilDICOM.2.0.2.9'
+Resolved actions to install package 'EvilDICOM.2.0.2.9'
+Retrieving package 'EvilDICOM 2.0.2.9' from 'nuget.org'.
+Retrieving package 'System.ValueTuple 4.4.0' from 'nuget.org'.
+  GET https://api.nuget.org/v3-flatcontainer/evildicom/2.0.2.9/evildicom.2.0.2.9.nupkg
+  GET https://api.nuget.org/v3-flatcontainer/system.valuetuple/4.4.0/system.valuetuple.4.4.0.nupkg
+  OK https://api.nuget.org/v3-flatcontainer/system.valuetuple/4.4.0/system.valuetuple.4.4.0.nupkg 313ms
+Installing System.ValueTuple 4.4.0.
+  OK https://api.nuget.org/v3-flatcontainer/evildicom/2.0.2.9/evildicom.2.0.2.9.nupkg 340ms
+Installing EvilDICOM 2.0.2.9.
+Adding package 'System.ValueTuple.4.4.0' to folder 'C:\Users\cwalker\Desktop\DiscoverLeafDeviations\Projects\DicomPlanCreation\packages'
+Added package 'System.ValueTuple.4.4.0' to folder 'C:\Users\cwalker\Desktop\DiscoverLeafDeviations\Projects\DicomPlanCreation\packages'
+Added package 'System.ValueTuple.4.4.0' to 'packages.config'
+Successfully installed 'System.ValueTuple 4.4.0' to DicomPlanCreation
+Adding package 'EvilDICOM.2.0.2.9' to folder 'C:\Users\cwalker\Desktop\DiscoverLeafDeviations\Projects\DicomPlanCreation\packages'
+Added package 'EvilDICOM.2.0.2.9' to folder 'C:\Users\cwalker\Desktop\DiscoverLeafDeviations\Projects\DicomPlanCreation\packages'
+Added package 'EvilDICOM.2.0.2.9' to 'packages.config'
+Successfully installed 'EvilDICOM 2.0.2.9' to DicomPlanCreation
+Executing nuget actions took 1.74 sec
+Time Elapsed: 00:00:02.7622980
+========== Finished ==========
+

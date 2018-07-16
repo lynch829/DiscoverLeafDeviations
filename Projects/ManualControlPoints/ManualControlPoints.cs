@@ -3,8 +3,8 @@ using System.Runtime.CompilerServices;
 using VMS.TPS.Common.Model.API;
 
 // TODO: Replace the following version attributes by creating AssemblyInfo.cs. You can do this in the properties of the Visual Studio project.
-[assembly: AssemblyVersion("1.8.4.3")]
-[assembly: AssemblyFileVersion("1.0.0.1")]
+[assembly: AssemblyVersion("1.8.4.4")]
+[assembly: AssemblyFileVersion("1.0.0.2")]
 [assembly: AssemblyInformationalVersion("1.0")]
 
 // TODO: Uncomment the following line if the script requires write access.

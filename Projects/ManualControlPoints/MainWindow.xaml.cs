@@ -307,17 +307,19 @@ namespace ManualControlPoints
 
 
                     //********************************** 
-                     b2.ApplyParameters(beamp);
+                    b2.ApplyParameters(beamp);
                     //**********************************
 
 
 
                     cploc++;
                     }
-                    //calculate the dose for each of the fields.
-                    mu_list.Add(new KeyValuePair<string, MetersetValue>(b2.Id, fi.MU));
+               
+                //calculate the dose for each of the fields.
+                mu_list.Add(new KeyValuePair<string, MetersetValue>(b2.Id, fi.MU));
                 }
-                ps2.CalculateDoseWithPresetValues(mu_list);
+           
+            ps2.CalculateDoseWithPresetValues(mu_list);
             //ps2.PlanNormalizationMethod = ps.PlanNormalizationMethod;\
             //need to renormalize by 1.3% in order to take into account the Discover that we cannot add to the newly calculated plan.
             //ps2.PlanNormalizationValue = val * ps2.PlanNormalizationValue;
