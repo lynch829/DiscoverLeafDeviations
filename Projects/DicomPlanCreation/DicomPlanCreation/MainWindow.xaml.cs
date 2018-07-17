@@ -12,6 +12,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using EvilDICOM;
+using EvilDICOM.RT;
+using EvilDICOM.Core;
+using System.IO;
+using Microsoft.Win32;
+using EvilDICOM.Core.Element;
+using EvilDICOM.Core.IO;
+using EvilDICOM.Core.Helpers;
 
 namespace DicomPlanCreation
 {
@@ -27,6 +35,14 @@ namespace DicomPlanCreation
 
         private void getcpp_btn_Click(object sender, RoutedEventArgs e)
         {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.DefaultExt = ".dcm";
+            string filename = "";
+             if (ofd.ShowDialog() == true)
+                 {
+                filename = ofd.FileName;
+                 }
+            var dcm = DICOMObject.Read(filename);
 
         }
 

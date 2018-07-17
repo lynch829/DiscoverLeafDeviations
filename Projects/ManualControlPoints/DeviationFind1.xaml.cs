@@ -23,5 +23,40 @@ namespace ManualControlPoints
         {
             InitializeComponent();
         }
+
+        private void getcpp_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void getDevn_btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void prev_Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void next_Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void prevCP_Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void nextCP_Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void NewPlan_Btn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
