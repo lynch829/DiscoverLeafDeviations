@@ -5,8 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DicomPlanCreation"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="500" Width="700">
     <Grid>
-        
+        <TextBlock Margin="10 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Control Point Information</TextBlock>
+        <DataGrid Name="cpp_dg" Width="400" Height="300" Margin="22,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></DataGrid>
+        <Button Name="getcpp_btn" Width="150" Height="30" Margin="150 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Load MLC control point" Click="getcpp_btn_Click"></Button>
+        <Button Name="getDevn_btn" Width="150" Height="30" Margin="325 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Load Deviations" Click="getDevn_btn_Click"></Button>
+        <Label Name="fieldID" Width="150" Margin="150 370 0 0" HorizontalAlignment="Left" VerticalAlignment="Top"></Label>
+        <Button Name="prev_Btn" Width="50" Height="30" Margin="50 360 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="&lt;" Click="prev_Btn_Click"></Button>
+        <Button Name="next_Btn" Width="50" Height="30" Margin="340 360 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Content="&gt;" Click="next_Btn_Click"></Button>
+        <Button Name="prevCP_Btn" Width="50" Height="30" Content="&lt;" Margin="50 410 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="prevCP_Btn_Click"></Button>
+        <Button Name="nextCP_Btn" Width="50" Height="30" Content="&gt;" Margin="340 410 0 0" HorizontalAlignment="Left" VerticalAlignment="Top" Click="nextCP_Btn_Click"></Button>
+        <Label Name="cpId" Width="150" Margin="150,420,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></Label>
+        <TextBlock Margin="550 20 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">New Plan Creation</TextBlock>
+        <TextBlock Margin="450 50 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Course ID</TextBlock>
+        <TextBlock Margin="450 80 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Plan ID</TextBlock>
+        <TextBlock Margin="450 112 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">T factor</TextBlock>
+        <TextBlock FontSize="18" Margin="440,218,10,21">Info</TextBlock>
+        <TextBox Name="Course_Txt" Margin="520 50 0 0" Width="150" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top">Test Course</TextBox>
+        <TextBox Name="Plan_Txt" Margin="520 80 0 0" Width="150" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top">Test Plan</TextBox>
+        <TextBox Text="1.3" Margin="520 112 0 0" Width="150" Height="20" HorizontalAlignment="Left" VerticalAlignment="Top"></TextBox>
+        <Button Name="NewPlan_Btn" Content="Generate New Plan" Width="150" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Click="NewPlan_Btn_Click" Margin="480 170 0 0"></Button>
     </Grid>
 </Window>
