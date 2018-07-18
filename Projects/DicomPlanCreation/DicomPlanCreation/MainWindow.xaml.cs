@@ -80,6 +80,11 @@ namespace DicomPlanCreation
                 }
 
             });
+            var MU = dcm.FindAll("300A0086");
+            foreach (var cp in field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.BeamLimitingDevicePositionSequence }))
+                {
+                    var leaf_positions = cp.DData_;
+                }
         }
 
 
