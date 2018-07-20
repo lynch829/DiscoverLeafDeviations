@@ -33,7 +33,7 @@ namespace DicomPlanCreation
         public int fieldnum = 0;
         public int cp_num = 0;
         public List<FieldInfos> fields = new List<FieldInfos>();
-        private List<IDICOMElement> collimator;
+        //private List<IDICOMElement> collimator;
 
         public MainWindow()
         {
@@ -56,22 +56,45 @@ namespace DicomPlanCreation
             {
                 fields.Add(new FieldInfos
                 {
-                    FieldId = field.FindFirst(TagHelper.PatientID.ToString();
-                collimator = field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.BeamLimitingDeviceAngle });
-                var gantry = field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.GantryAngle }).First();
+                    FieldId = field.FindFirst(TagHelper.BeamName).DData.ToString(),
+                    collAngle = Convert.ToDouble(field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.BeamLimitingDeviceAngle }).First().DData),
+                    gantry = Convert.ToDouble(field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.GantryAngle }).First().DData),
+                    cpInfos = new List<cpInfo>(),
+                });
                 var field_selector = field.GetSelector();
                 int control_point_number = 0;
                 foreach (var cp in field_selector.ControlPointSequence.Data_)
                 {
                     var cp_selector = cp.GetSelector();
+                    fields.Last().cpInfos.Add(new cpInfo
+                    {
+                        cpId = control_point_number,
+                        cpDetails = new List<cpDetail>(),
+                        //meterSet = cp_selector
+                    });
                     int leaf_number = 0;
                     int leaf_row = 0;
-                    float[,] leaf_positions = new float[2, 60];
-
+                    //float[,] leaf_positions = new float[2, 60];
+                    //int cp_index = 0;
                     foreach (var leaf_pos in cp_selector.LeafJawPositions_.Last().DData_)
                     {
                         //leaf p[ositions
-                        leaf_positions[leaf_row, leaf_number % 60] = (float)Convert.ToDouble(leaf_pos);
+                        //leaf_positions[leaf_row, leaf_number % 60] = (float)Convert.ToDouble(leaf_pos);
+                        //leaf B is first then after 60 it starts leaf A
+                        if (leaf_number < 60)
+                        {
+                            fields.Last().cpInfos.Last().cpDetails.Add(new cpDetail
+                            {
+                                leaffNum = leaf_number,
+                                //1 is a and 0 is b.
+                                //leafA = leaf_positions[1, i],//+10, //replace 10mm with leaf shifts
+                                leafB = (float)Convert.ToDouble(leaf_pos)// +10 //replace 10mm with leaf shifts.
+                            });
+                        }
+                        else
+                        {
+                            fields.Last().cpInfos.Last().cpDetails.First(x => x.leaffNum == leaf_number - 60).leafA = (float)Convert.ToDouble(leaf_pos);
+                        }
                         leaf_number++;
                         if (leaf_number == 59) { leaf_row = 1; }
                     }
@@ -79,12 +102,26 @@ namespace DicomPlanCreation
                     control_point_number++;
                 }
 
-            });
-            var MU = dcm.FindAll("300A0086");
-            foreach (var cp in field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.BeamLimitingDevicePositionSequence }))
+
+
+                var MU = dcm.FindAll("300A0086");
+
+                foreach (var cp in field.FindAll(new Tag[] { TagHelper.ControlPointSequence, TagHelper.BeamLimitingDevicePositionSequence }))
                 {
                     var leaf_positions = cp.DData_;
                 }
+            }
+            //make sure you got sosme controlpoints.
+            if (fields.Count() != 0)
+            {
+                fieldnum = 0; cp_num = 0;
+                //cp_dg.Items.Clear();
+                cpp_dg.ItemsSource = fields.First().cpInfos.First().cpDetails;
+                cpp_dg.Items.Refresh();
+                fieldID.Content = fields.First().FieldId;
+                cpId.Content = String.Format("CP: {0}; MeterSet:{1}",
+                    fields.First().cpInfos.First().cpId, fields.First().cpInfos.First().meterSet);
+            }
         }
 
 
@@ -149,7 +186,7 @@ namespace DicomPlanCreation
             }
         }
 
-    
+
 
         private void prevCP_Btn_Click(object sender, RoutedEventArgs e)
         {
@@ -187,7 +224,11 @@ namespace DicomPlanCreation
 
         private void NewPlan_Btn_Click(object sender, RoutedEventArgs e)
         {
+            //loop through fields.
+            //loop through control points
+            //set the control point leaf position value equal to the current leaf position value + deviation.
 
+            //after all loops WRITE the DICOM file to the file system.
         }
     }
 }
