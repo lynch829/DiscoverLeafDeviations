@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:DicomPlanCreation"
         mc:Ignorable="d"
         Title="MainWindow" Height="500" Width="700">
+    
     <Grid>
         <TextBlock Margin="10 10 0 0" HorizontalAlignment="Left" VerticalAlignment="Top">Control Point Information</TextBlock>
         <DataGrid Name="cpp_dg" Width="400" Height="300" Margin="22,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"></DataGrid>

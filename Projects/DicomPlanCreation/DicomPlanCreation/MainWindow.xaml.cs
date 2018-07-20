@@ -230,6 +230,7 @@ namespace DicomPlanCreation
 
             //after all loops WRITE the DICOM file to the file system.
         }
+
     }
 }
 

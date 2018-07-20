@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DicomPlanCreation"
         mc:Ignorable="d"
-        Title="DeviationFind" Height="400" Width="500">
+        Title="DeviationFind" Height="400" Width="500"
+        Loaded="Window_Loaded">
     <Grid>
         <TextBlock>Open a file for the deviations for each field.</TextBlock>
         <ScrollViewer Margin="20" HorizontalAlignment="Center" VerticalAlignment="Top" Width="450" Height="300">
