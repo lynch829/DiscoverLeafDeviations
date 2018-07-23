@@ -30,6 +30,7 @@ namespace DicomPlanCreation
     /// </summary>
     public partial class MainWindow : Window
     {
+       
         public int fieldnum = 0;
         public int cp_num = 0;
         public List<FieldInfos> fields = new List<FieldInfos>();
@@ -224,13 +225,73 @@ namespace DicomPlanCreation
 
         private void NewPlan_Btn_Click(object sender, RoutedEventArgs e)
         {
-            //loop through fields.
-            //loop through control points
-            //set the control point leaf position value equal to the current leaf position value + deviation.
+            
 
-            //after all loops WRITE the DICOM file to the file system.
+            ////loop through fields.
+            for (int t=0; t < fields.Count(); t++)
+            {
+                FieldInfos fi = fields[t];
+                FieldInfos b2;
+                
+                if (fi.gantry_direction == 0)
+                {
+                    fi.cpInfos.Select(x => x.meterSet),fi.collAngle, fi.gantry, fi.couch;
+                }
+              
+            }
+            //loop through control points
+            int cploc = 0;
+            
+            foreach (var cp in field_selector.ControlPointSequence.Data_)
+          
+            {  
+                float[,] leafPos = new float[2, 60];
+                int leafloc = 0;
+                double x1 = cp.JawPositions.X1;
+                double x2 = cp.JawPositions.X2;
+                cpInfo cpi = fi.cpInfos[cploc];
+
+              
+                for (int dd = 0; dd < cpi.cpDetails.Count(); dd++)
+                {
+                    cpDetail cpd = cpi.cpDetails[dd];
+                  
+                    if (cpd.leafB + Convert.ToSingle(cpd.deviationB) > cpd.leafA + Convert.ToSingle(cpd.deviationA))
+                    {
+                        leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
+                        leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.1;
+                    }
+                    else
+                    {
+                        
+                        leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
+                        leafPos[0, leafloc] = cpd.leafB + (float)cpd.deviationB;
+
+                        
+                    }
+
+                    leafloc++;
+                }
+               
+                cp.LeafPositions = leafPos;
+              
+
+
+
+                cploc++;
+            }
+
+         
+          
         }
 
+      
+           
+           
     }
-}
+              
 
+               
+ }
+
+    
