@@ -194,11 +194,11 @@ namespace ManualControlPoints
                 ps.TreatmentPercentage);
             //I've chnaged this down below. Currently, the calculation will take place with preset monitor units
             //making it the same as the plan its copied from but then I scale the normaliztation factor by 1.3% because the discover is not in the beam.
-            ps2.PlanNormalizationValue = val*ps.PlanNormalizationValue;
+            //ps2.PlanNormalizationValue = val*ps.PlanNormalizationValue;
 
             //val = (double)Convert.ToDouble(Input.Text);
-            bool valid = double.TryParse(Input.Text.ToString(), out val);
-            ps2.PlanNormalizationValue = val + no_norm;
+            //bool valid = double.TryParse(Input.Text.ToString(), out val);
+            //ps2.PlanNormalizationValue = val + no_norm;
             //ps2.TreatmentPercentage = ps.TreatmentPercentage;//read only
 
             //ps2.AddMLCBeam()
@@ -325,7 +325,7 @@ namespace ManualControlPoints
             //ps2.PlanNormalizationValue = val * ps2.PlanNormalizationValue;
             //val = (double)Convert.ToDouble(Input.Text);
             if (double.TryParse(Input.Text.ToString(), out val))
-            { ps2.PlanNormalizationValue = val + no_norm; }
+            { ps2.PlanNormalizationValue = val; }
             MessageBox.Show($"{plan_txt.Text} created successfully.");
             }
 

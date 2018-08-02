@@ -27,7 +27,7 @@ namespace DicomPlanCreation
         //public ExternalBeamMachineParameters Ebmp { get; set; }
 
         //need to know if it is a VMAT field.
-        public GantryDirection gantry_direction { get; set; }
+        //public GantryDirection gantry_direction { get; set; }
         public double collAngle { get; set; }
         public double gantry { get; set; }
         public double couch { get; set; }

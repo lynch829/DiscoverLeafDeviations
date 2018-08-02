@@ -22,6 +22,7 @@ using EvilDICOM.Core.IO;
 using EvilDICOM.Core.Helpers;
 using System.Reflection;
 using EvilDICOM.Core.Interfaces;
+using System.Collections.ObjectModel;
 
 namespace DicomPlanCreation
 {
@@ -30,7 +31,7 @@ namespace DicomPlanCreation
     /// </summary>
     public partial class MainWindow : Window
     {
-       
+
         public int fieldnum = 0;
         public int cp_num = 0;
         public List<FieldInfos> fields = new List<FieldInfos>();
@@ -40,7 +41,7 @@ namespace DicomPlanCreation
         {
             InitializeComponent();
         }
-
+        DICOMObject dcm = null;
         private void getcpp_btn_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -50,7 +51,7 @@ namespace DicomPlanCreation
             {
                 filename = ofd.FileName;
             }
-            var dcm = DICOMObject.Read(filename);
+            dcm = DICOMObject.Read(filename);
 
             var sel = dcm.GetSelector();
             foreach (var field in sel.BeamSequence.Items)
@@ -225,73 +226,116 @@ namespace DicomPlanCreation
 
         private void NewPlan_Btn_Click(object sender, RoutedEventArgs e)
         {
-            
+
 
             ////loop through fields.
-            for (int t=0; t < fields.Count(); t++)
+            var dcm_select = dcm.GetSelector();
+            for (int t = 0; t < fields.Count(); t++)
             {
                 FieldInfos fi = fields[t];
-                FieldInfos b2;
-                
-                if (fi.gantry_direction == 0)
+                DICOMObject field_obj = null;
+                foreach (var f in dcm_select.BeamSequence.Items)
                 {
-                    fi.cpInfos.Select(x => x.meterSet),fi.collAngle, fi.gantry, fi.couch;
+                    if (f.FindFirst(TagHelper.BeamName).DData.ToString() == fi.FieldId)
+                    {
+                        field_obj = f;
+                        break;
+                    }
                 }
-              
-            }
-            //loop through control points
-            int cploc = 0;
-            
-            foreach (var cp in field_selector.ControlPointSequence.Data_)
-          
-            {  
-                float[,] leafPos = new float[2, 60];
-                int leafloc = 0;
-                double x1 = cp.JawPositions.X1;
-                double x2 = cp.JawPositions.X2;
-                cpInfo cpi = fi.cpInfos[cploc];
 
-              
-                for (int dd = 0; dd < cpi.cpDetails.Count(); dd++)
+                //if (fi.gantry_direction == 0)
+                //{
+                //    fi.cpInfos.Select(x => x.meterSet),fi.collAngle, fi.gantry, fi.couch;
+                //}
+
+
+                //loop through control points
+                int cploc = 0;
+                var field_selector = field_obj.GetSelector();
+                foreach (var cp in field_selector.ControlPointSequence.Data_)
                 {
-                    cpDetail cpd = cpi.cpDetails[dd];
-                  
-                    if (cpd.leafB + Convert.ToSingle(cpd.deviationB) > cpd.leafA + Convert.ToSingle(cpd.deviationA))
+                    float[,] leafPos = new float[2, 60];
+                    int leafloc = 0;
+                    //double x1 = cp.JawPositions.X1;
+                    //double x2 = cp.JawPositions.X2;
+                    cpInfo cpi = fi.cpInfos[cploc];
+                    var cp_select = cp.GetSelector();
+                    int leaf_number = 0;
+                    List<double> leaf_pos_list = new List<double>(cp_select.LeafJawPositions_.Last().Data_);//.Cast<double>().ToList());//.Cast<double>().ToList();
+                    for (int leaf_pos = 0; leaf_pos < cp_select.LeafJawPositions_.Last().DData_.Count; leaf_pos++)
                     {
-                        leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
-                        leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.1;
+                        //this loop modifies the leaf positions in the DICOM file.
+                        cpDetail cpd = null;
+                        if (leaf_number < 60)
+                        {
+                            //cp_select.LeafJawPositions_.Last().DData_[leaf_pos]
+                            //cp_select.LeafJawPositions_.Last().DData_[leaf_number] = 
+                            cpd = fi.cpInfos[cploc].cpDetails[leaf_number];
+                            if (cpd.leafB + Convert.ToSingle(cpd.deviationB) > cpd.leafA + Convert.ToSingle(cpd.deviationA))
+                            {
+                                leaf_pos_list[leaf_number] = leaf_pos_list[leaf_number + 60] + (double)cpd.deviationA - 0.1;
+                            }
+                            else
+                            {
+                                leaf_pos_list[leaf_number] += cpd.deviationB;
+                            }
+                        }
+                        else
+                        {
+                            cpd = fi.cpInfos[cploc].cpDetails[leaf_number - 60];
+                            leaf_pos_list[leaf_number] += cpd.deviationA;
+                        }
+                        leaf_number++;
                     }
-                    else
+                    cp_select.LeafJawPositions_.Last().Data_ = leaf_pos_list;
+                    for (int dd = 0; dd < cpi.cpDetails.Count(); dd++)
                     {
-                        
-                        leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
-                        leafPos[0, leafloc] = cpd.leafB + (float)cpd.deviationB;
+                        cpDetail cpd = cpi.cpDetails[dd];
 
-                        
+                        if (cpd.leafB + Convert.ToSingle(cpd.deviationB) > cpd.leafA + Convert.ToSingle(cpd.deviationA))
+                        {
+                            leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
+                            leafPos[0, leafloc] = leafPos[1, leafloc] - (float)0.1;
+                        }
+                        else
+                        {
+
+                            leafPos[1, leafloc] = cpd.leafA + (float)cpd.deviationA;
+                            leafPos[0, leafloc] = cpd.leafB + (float)cpd.deviationB;
+
+
+                        }
+
+                        leafloc++;
+
                     }
 
-                    leafloc++;
+                    // cp.LeafPositions = leafPos;
+
+
+
+
+                    cploc++;
                 }
-               
-                cp.LeafPositions = leafPos;
-              
 
-
-
-                cploc++;
             }
-
-         
-          
+            //write the dicom file.
+            dcm_select.RTPlanLabel.DData = Plan_Txt.Text;
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = "dcm";
+            if (sfd.ShowDialog() == true)
+            {
+                dcm.Write(sfd.FileName);
+            }
         }
 
-      
-           
-           
+
+
+
     }
-              
 
-               
- }
 
-    
+
+}
+
+
